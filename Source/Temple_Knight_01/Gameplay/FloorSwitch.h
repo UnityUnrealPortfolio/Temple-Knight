@@ -33,7 +33,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Aura_FloorSwitch")
 		FVector InitialFloorSwitchLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Aura_FloorSwitch")
+		float SwitchTime;
+
 	FTimerHandle SwitchTimerHandle;
+
+	bool bIsOverlappingSwitch;
 
 protected:
 	// Called when the game starts or when spawned

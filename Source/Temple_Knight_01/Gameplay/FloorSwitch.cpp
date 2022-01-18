@@ -27,6 +27,9 @@ AFloorSwitch::AFloorSwitch()
 	TriggerBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	TriggerBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
+	SwitchTime = 2.f;
+
+	bIsOverlappingSwitch = false;
 	
 }
 
@@ -53,15 +56,19 @@ void AFloorSwitch::Tick(float DeltaTime)
 void AFloorSwitch::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Inside OnBeginOverlap()"));
+	if (bIsOverlappingSwitch)return;
+	if (bIsOverlappingSwitch == false)
+	{
+	bIsOverlappingSwitch = true;
 	RaiseDoor();
 	LowerFloorSwitch();
+	}
 }
 
 void AFloorSwitch::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Inside OnEndOverlap()"));
-	LowerDoor();
-	RaiseFloorSwitch();
+	GetWorldTimerManager().SetTimer(SwitchTimerHandle,this, &AFloorSwitch::CloseDoor,SwitchTime);
 }
 
 void AFloorSwitch::UpdateDoorLocation(float Z)
@@ -76,6 +83,13 @@ void AFloorSwitch::UpdateFloorSwitchLocation(float Z)
 	FVector NewLocation = InitialFloorSwitchLocation;
 	NewLocation.Z = Z;
 	FloorSwitch->SetWorldLocation(NewLocation, false);
+}
+
+void AFloorSwitch::CloseDoor()
+{
+	bIsOverlappingSwitch = false;
+	LowerDoor();
+	RaiseFloorSwitch();
 }
 
 
